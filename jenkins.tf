@@ -11,14 +11,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
-data "aws_vpc" "jenkinsVPC" {
-  default = true
-}
-
-resource "aws_security_group" "jenkins_server_sg_tf" {
-  name        = "jenkins_server_sg_tf"
-  description = "Allow SSH to jenkins server"
-  vpc_id      = data.aws_vpc.jenkinsVPC.id
+resource "aws_security_group" "jenkins-server-sg-tf" {
+  name        = "jenkins-server-sg-tf"
+  description = "Allow SSH and HTTP to jenkins server"
 
   ingress {
     description = "SSH ingress"
@@ -49,79 +44,39 @@ resource "aws_security_group" "jenkins_server_sg_tf" {
   }
 }
 
-resource "aws_iam_role" "jenkinsRole" {
-  name = "jenkinsRole"
+resource "aws_iam_role" "jenkins-role" {
+  name = "jenkins-role"
 
-  assume_role_policy = <<EOF
-{
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Action":"sts:AssumeRole",
-                "Principal": {
-                    "Service": "ec2.amazonaws.com"
-                },
-                "Effect": "Allow",
-                "Sid": ""
-            }
-        ]
-}
-EOF
-}
-
-resource "aws_iam_instance_profile" "jenkinsProfile" {
-  name = "jenkinsProfile"
-  role = aws_iam_role.jenkinsRole.name
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+  managed_policy_arns = ["arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess", "arn:aws:iam::aws:policy/AmazonEC2FullAccess", "arn:aws:iam::aws:policy/IAMFullAccess", "arn:aws:iam::aws:policy/AmazonS3FullAccess"]
 }
 
-resource "aws_iam_policy" "EC2_iam_policy" {
-  name   = "EC2_iam_policy"
-  policy = <<EOF
- {
-    "Version": "2012-10-17", 
-    "Statement": [ 
-        { 
-            "Effect": "Allow",
-            "Action": [ 
-                "ec2:RunInstances", 
-                "ec2:TerminateInstances", 
-                "ec2:StartInstances",
-                "ec2:StopInstances"
-            ],
-            "Resource": "*" 
-        }, 
-        { 
-            "Effect": "Allow", 
-            "Action": [ 
-                "ec2:CreateTags", 
-                "ec2:DescribeInstances",
-                "ec2:DescribeInstanceStatus",
-                "ec2:DescribeAddresses", 
-                "ec2:AssociateAddress",
-                "ec2:DisassociateAddress",
-                "ec2:DescribeRegions",
-                "ec2:DescribeAvailabilityZones"
-            ], 
-            "Resource": "*" 
-        } 
-    ] 
-}
-EOF
+resource "aws_iam_instance_profile" "jenkins-profile" {
+  name = "jenkins-profile"
+  role = aws_iam_role.jenkins-role.name
 }
 
-resource "aws_iam_role_policy_attachment" "jenkinsRoleAttachment" {
-  role       = aws_iam_role.jenkinsRole.name
-  policy_arn = aws_iam_policy.EC2_iam_policy.arn
-}
-
-resource "aws_instance" "jenkinsServer" {
+resource "aws_instance" "jenkins-server" {
   ami                    = "ami-0a3c3a20c09d6f377"
   instance_type          = "t3a.medium"
   key_name               = "son"
-  vpc_security_group_ids = [aws_security_group.jenkins_server_sg_tf.id]
-  iam_instance_profile   = aws_iam_instance_profile.jenkinsProfile.id
+  vpc_security_group_ids = [aws_security_group.jenkins-server-sg-tf.id]
+  iam_instance_profile   = aws_iam_instance_profile.jenkins-profile.id
+  user_data              = file("jenkins.sh")
 
   tags = {
-    Name = "jenkinsServer"
+    Name = "jenkins-server"
   }
 }
