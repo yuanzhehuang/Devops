@@ -5,7 +5,7 @@
       aws_region: us-east-1 # use use-east-1 region
       ecr_registry: 975050139159.dkr.ecr.us-east-1.amazonaws.com # use your ecr ID
   tasks:
- 
+
     # we need to uninstall any existing docker files from the centos repo first.
     - name: Remove docker if installed from CentOS repo
       yum:
