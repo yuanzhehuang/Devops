@@ -82,5 +82,5 @@ resource "aws_instance" "jenkins-server" {
 }
 
 output "jenkins-server" {
-  value = "http://${aws_instance.tf-jenkins-server.public_dns}:8080"
+  value = "http://${aws_instance.jenkins-server.public_dns}:8080"
 }
