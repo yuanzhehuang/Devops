@@ -5,6 +5,11 @@ terraform {
       version = "5.52.0"
     }
   }
+  backend "s3" {
+    bucket = "tf-storage46346523"
+    key = "state/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {

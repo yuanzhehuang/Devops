@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout git branch') {
+            steps {
+                git branch: 'main', credentialsId: 'jenkins-devops-repo', url: 'https://github.com/KennethECochran/DevOps.git'
+            }
+        }
+        stage('Terraform init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply --auto-approve'
+            }
+        }
+    }
+}
