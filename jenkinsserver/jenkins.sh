@@ -27,8 +27,7 @@ curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compo
 chmod +x /usr/local/bin/docker-compose
 # uninstall aws cli version 1
 rm -rf /bin/aws
-curl "
-https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip ./aws/install
 #amazon-linux-extras install ansible2 -y
 yum install -y ansible
