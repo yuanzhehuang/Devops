@@ -17,5 +17,10 @@ pipeline {
                 sh 'terraform apply --auto-approve'
             }
         }
+        stage('Create ECR repository') {
+            steps {
+                sh 'aws ecr create-repository --repository-name jenkins-server-ECR/docker-images --region us-east-1'
+            }
+        }
     }
 }
