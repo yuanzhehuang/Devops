@@ -28,7 +28,8 @@ chmod +x /usr/local/bin/docker-compose
 # uninstall aws cli version 1
 rm -rf /bin/aws
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip ./aws/install
+unzip awscliv2.zip
+./aws/install
 #amazon-linux-extras install ansible2 -y
 yum install -y ansible
 yum install python-boto3 -y
