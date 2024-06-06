@@ -6,7 +6,7 @@ COPY nodejs/server/package.json ./
 
 RUN npm install
 
-COPY nodejs/server .
+COPY nodejs/server ./
 
 EXPOSE 5000
 
