@@ -2,8 +2,6 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY ./nodejs/server .
-
 COPY ./nodejs/server/package*.json ./
 
 RUN npm install
