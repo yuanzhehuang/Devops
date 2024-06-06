@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Build App Docker Images') {
             steps {
-                sh 'docker build -t nodejs-app nodejs/server/dockerfile-nodejs'
+                sh 'docker build -t nodejs-app nodejs/server/'
                 sh 'docker tag nodejs-app:latest 975050139159.dkr.ecr.us-east-1.amazonaws.com/ecr-repo/todo-app:latest'
                 sh 'docker push 975050139159.dkr.ecr.us-east-1.amazonaws.com/ecr-repo/todo-app:latest'
             }
