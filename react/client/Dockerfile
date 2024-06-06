@@ -5,13 +5,13 @@ FROM node:latest
 WORKDIR /app
 
 # Copy all package json files under /app
-COPY ./react/client/package*.json ./
+COPY package*.json ./
 
 # Run yarn install
 RUN yarn install
 
 # copy all files into the image
-COPY ./react/client .
+COPY . .
 
 # open required port number
 EXPOSE 3000

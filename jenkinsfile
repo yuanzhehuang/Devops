@@ -27,10 +27,18 @@ pipeline {
         }
         stage('Build App Docker Images') {
             steps {
-                sh """docker login -u AWS -p \$(aws ecr get-login-password --region us-east-1) $ECR_REGISTRY"""
+                sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
                 sh 'docker build -t nodejs-app ./nodejs/server'
-                sh """docker tag nodejs-app:latest $ECR_REGISTRY/$APP_REPO_NAME:latest"""
-                sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:latest"""
+                sh """docker tag nodejs-app $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
+                sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
+
+                sh 'docker build -t postgres-app ./postgresql'
+                sh """docker tag postgres-app $ECR_REGISTRY/$APP_REPO_NAME:postgres-app"""
+                sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:postgres-app"""
+
+                sh 'docker build -t react-app ./react/client'
+                sh """docker tag react-app $ECR_REGISTRY/$APP_REPO_NAME:react-app"""
+                sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:react-app"""
             }
         }
     }

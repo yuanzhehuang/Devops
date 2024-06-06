@@ -1,5 +1,5 @@
 FROM postgres:latest
 
-COPY ./postgresql/init.sql ./
+COPY init.sql ./
 
 EXPOSE 5432
