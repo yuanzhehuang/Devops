@@ -60,7 +60,7 @@ pipeline {
         }
         stage('Deploy App') {
             steps {
-                sh 'ansible-playbook -i inventory_aws_ec2.yml docker_project.yml'
+                sh 'ansible-playbook -vvv -i inventory_aws_ec2.yml --key-file "son.pem" docker_project.yml'
             }
         }
     }
