@@ -55,6 +55,11 @@ pipeline {
                 sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:react-app"""
             }
         }
+        stage('Wait for instances') {
+            steps {
+                sh 'sleep 1m'
+            }
+        }
         stage('Deploy App') {
             steps {
                 sh 'chmod 0600 son.pem'
