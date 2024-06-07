@@ -9,16 +9,23 @@ pipeline {
         APP_NAME = "todo"
         HOME_FOLDER = "/home/ec2-user"
         GIT_FOLDER = sh(script:'echo ${GIT_URL} | sed "s/.*\\///;s/.git$//"', returnStdout:true).trim()
+        SKIP_STAGE = 'true'
     }
 
     stages {
         stage('Build Infrastructure for App') {
+            when {
+                expression{"$SKIP_STAGE" == 'false'}
+                }
             steps {
                 sh 'terraform init'
                 sh 'terraform apply --auto-approve'
             }
         }
         stage('Create ECR Repository') {
+            when {
+                expression{"$SKIP_STAGE" == 'false'}
+                }
             steps {
                 sh """aws ecr create-repository \
                 --repository-name $APP_REPO_NAME \
@@ -26,6 +33,9 @@ pipeline {
             }
         }
         stage('Build App Docker Images') {
+            when {
+                expression{"$SKIP_STAGE" == 'false'}
+                }
             steps {
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
                 sh 'docker build -t nodejs-app ./nodejs/server'
@@ -34,6 +44,9 @@ pipeline {
             }
         }
         stage('Push App Docker Images to ECR Repo') {
+            when {
+                expression{"$SKIP_STAGE" == 'false'}
+                }
             steps {
                 sh """docker tag nodejs-app $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
                 sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
