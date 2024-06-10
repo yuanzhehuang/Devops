@@ -57,7 +57,7 @@ pipeline {
         }
         stage('Wait for instances') {
             steps {
-                sh 'ansible wait_for_connection -i inventory_aws_ec2.yml'
+                sh 'ansible -i inventory_aws_ec2.yml wait_for_connection'
             }
         }
         stage('Deploy App') {
