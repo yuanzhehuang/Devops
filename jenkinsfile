@@ -33,6 +33,7 @@ pipeline {
             steps {
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
                 sh 'docker build -t postgres-app ./postgresql'
+                // input steps for envsubst command for nodejs file and react file here
                 //sh 'docker build -t nodejs-app ./nodejs/server'
                 //sh 'docker build -t react-app ./react/client'
             }
@@ -51,12 +52,13 @@ pipeline {
         }
         stage('Wait for instances') {
             steps {
-                sh 'chmod 0600 son.pem'
-                sh 'ansible --private-key=son.pem -i inventory_aws_ec2.yml _development -m ansible.builtin.wait_for_connection'
+                id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
+                sh "while INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --output text --query 'Reservations[*].Instances[*].State.Name'); test "$INSTANCE_STATE" = "pending"; do sleep 1; echo -n '.'; done"
             }
         }
         stage('Deploy App') {
             steps {
+                sh 'chmod 0600 son.pem'
                 sh 'ansible-playbook --private-key=son.pem docker_project.yml'
             }
         }
