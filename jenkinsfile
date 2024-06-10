@@ -14,9 +14,6 @@ pipeline {
 
     stages {
         stage('Build Infrastructure for App') {
-            when {
-                expression{"$SKIP_STAGE" == 'false'}
-                }
             steps {
                 sh 'terraform init'
                 sh 'terraform apply --auto-approve'
