@@ -57,13 +57,13 @@ pipeline {
         }
         stage('Wait for instances') {
             steps {
-                sh 'sleep 1m'
+                sh 'ansible wait_for_connection -i inventory_aws_ec2.yml'
             }
         }
         stage('Deploy App') {
             steps {
                 sh 'chmod 0600 son.pem'
-                sh 'ansible-playbook -i inventory_aws_ec2.yml --private-key=son.pem docker_project.yml'
+                sh 'ansible-playbook --private-key=son.pem docker_project.yml'
             }
         }
     }
