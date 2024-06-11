@@ -58,7 +58,7 @@ pipeline {
             steps {
                 script{
                 id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
-                sh "aws ec2 wait instance-running-ok --instance-ids $id"
+                sh "aws ec2 wait instance-running --instance-ids $id"
                 }
             }
         }
