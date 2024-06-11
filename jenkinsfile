@@ -60,9 +60,16 @@ pipeline {
             steps {
                 script{
                 id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
-                sh "echo $id"
-                INSTANCE_STATE = sh(script: "aws ec2 describe-instances --instance-ids $id --output text --query Reservations[*].Instances[*].State.Name")
-                sh "echo $INSTANCE_STATE"
+                //sh "echo $id"
+                //INSTANCE_STATE = sh(script: "aws ec2 describe-instances --instance-ids $id --output text --query Reservations[*].Instances[*].State.Name")
+                sh(script: """until [ test "$INSTANCE_STATE" = "running" ] do \
+                echo 'Wait for instance.'; \
+                INSTANCE_STATE=\$(aws ec2 describe-instances \
+                --instance-ids $INSTANCE_ID --output text \
+                --query 'Reservations[*].Instances[*].State.Name'); \
+                sleep 2; echo -n '.' done; \
+                echo "$INSTANCE_STATE""")
+                //sh "echo $INSTANCE_STATE"
                 }
             }
         }
