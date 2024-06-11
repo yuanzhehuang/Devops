@@ -1,11 +1,1 @@
-SERVER_PORT= ?
- 
-DB_USER=postgres
- 
-DB_PASSWORD=Pp123456789
- 
-DB_NAME=tododb
- 
-DB_HOST= ? 
- 
-DB_PORT= ?
+REACT_APP_BASE_URL=http://${NODE_IP}:5000/

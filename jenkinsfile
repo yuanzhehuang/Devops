@@ -35,10 +35,17 @@ pipeline {
                 }
             steps {
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
-                sh 'docker build -t postgres-app ./postgresql'
+                env.POSGRES_IP = sh(script: 'terraform output postgre_private_ip', returnStdout: true).trim()
+                sh 'envsubst < node-env-template > nodejs/server/db.js'
+                sh 'cat nodejs/server/db.js'
+                env.NODE_IP = sh(script: 'terraform output node_public_ip', returnStdout: true).trim()
+                sh 'envsubst < react-env-template > react/client/src/components/EditTodo.js'
+                sh 'envsubst < react-env-template > react/client/src/components/InputTodo.js'
+                sh 'envsubst < react-env-template > react/client/src/components/ListTodo.js'
+                //sh 'docker build -t postgres-app ./postgresql'
                 // input steps for envsubst command for nodejs file and react file here
-                sh 'docker build -t nodejs-app ./nodejs/server'
-                sh 'docker build -t react-app ./react/client'
+                //sh 'docker build -t nodejs-app ./nodejs/server'
+                //sh 'docker build -t react-app ./react/client'
             }
         }
         stage('Push App Docker Images to ECR Repo') {
