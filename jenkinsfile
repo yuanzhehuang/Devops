@@ -38,6 +38,7 @@ pipeline {
                 sh 'cat nodejs/server/db.js'
                 env.NODE_IP = sh(script: 'terraform output node_public_ip', returnStdout: true).trim()
                 sh 'envsubst < react-env-template > react/client/src/components/EditTodo.js'
+                sh 'cat react/client/src/components/EditTodo.js'
                 sh 'envsubst < react-env-template > react/client/src/components/InputTodo.js'
                 sh 'envsubst < react-env-template > react/client/src/components/ListTodo.js'
                 }
