@@ -20,9 +20,6 @@ pipeline {
             }
         }
         stage('Create ECR Repository') {
-            when {
-                expression{"$SKIP_STAGE" == 'false'}
-                }
             steps {
                 sh """aws ecr create-repository \
                 --repository-name $APP_REPO_NAME \
@@ -39,16 +36,13 @@ pipeline {
                 env.NODE_IP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
                 sh 'envsubst < react-env-template.env > ./react/client/.env'
                 sh 'cat ./react/client/.env'
+                sh 'docker build -t postgres-app ./postgresql'
+                sh 'docker build -t nodejs-app ./nodejs/server'
+                sh 'docker build -t react-app ./react/client'
                 }
-                //sh 'docker build -t postgres-app ./postgresql'
-                //sh 'docker build -t nodejs-app ./nodejs/server'
-                //sh 'docker build -t react-app ./react/client'
             }
         }
         stage('Push App Docker Images to ECR Repo') {
-            when {
-                expression{"$SKIP_STAGE" == 'false'}
-                }
             steps {
                 sh """docker tag nodejs-app $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
                 sh """docker push $ECR_REGISTRY/$APP_REPO_NAME:nodejs-app"""
@@ -64,15 +58,14 @@ pipeline {
             steps {
                 script{
                 id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
-                sh "aws ec2 wait instance-running --instance-ids $id"
+                sh "aws ec2 wait instance-running-ok --instance-ids $id"
                 }
             }
         }
         stage('Deploy App') {
             steps {
                 sh 'chmod 0600 son.pem'
-                sh 'ansible _development --private-key=son.pem -m ping -i inventory_aws_ec2.yml'
-                //sh 'ansible-playbook --private-key=son.pem docker_project.yml'
+                sh 'ansible-playbook --private-key=son.pem docker_project.yml'
             }
         }
     }
