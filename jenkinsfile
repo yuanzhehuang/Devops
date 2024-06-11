@@ -63,7 +63,7 @@ pipeline {
                 sh "echo $id"
                 INSTANCE_STATE = sh(script: "aws ec2 describe-instances --instance-ids $id --output text --query Reservations[*].Instances[*].State.Name",  returnStdout:true).trim()
                 sh "echo $INSTANCE_STATE"
-                sh(script: """while $INSTANCE_STATE = (aws ec2 describe-instances \
+                sh(script: """while $INSTANCE_STATE =\$(aws ec2 describe-instances \
                 --instance-ids $id --output text  \
                 --query 'Reservations[*].Instances[*].State.Name');  \
                 test $INSTANCE_STATE = 'pending';  \
