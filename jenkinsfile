@@ -34,14 +34,13 @@ pipeline {
                 script{
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
                 env.POSGRES_IP = sh(script: 'terraform output -raw postgre_private_ip', returnStdout: true).trim()
-                sh 'envsubst < node-env-template.env'
-                sh 'cat nodejs/server/db.js'
+                sh 'envsubst < node-env-template.env > ./nodejs/server/.env'
+                sh 'cat ./nodejs/server/.env'
                 env.NODE_IP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
-                sh 'envsubst < node-env-template.env'
-                sh 'cat /react/client/src/components/EditTodo.js'
+                sh 'envsubst < node-env-template.env > ./react/client/.env'
+                sh 'cat ./react/client/.env'
                 }
                 //sh 'docker build -t postgres-app ./postgresql'
-                // input steps for envsubst command for nodejs file and react file here
                 //sh 'docker build -t nodejs-app ./nodejs/server'
                 //sh 'docker build -t react-app ./react/client'
             }
@@ -65,11 +64,7 @@ pipeline {
             steps {
                 script{
                 id = sh(script: 'aws ec2 describe-instances --filters Name=tag-value,Values=ansible_postgresql Name=instance-state-name,Values=running --query Reservations[*].Instances[*].[InstanceId] --output text',  returnStdout:true).trim()
-                //sh "echo $id"
-                //INSTANCE_STATE = sh(script: "aws ec2 describe-instances --instance-ids $id --output text --query Reservations[*].Instances[*].State.Name",  returnStdout:true).trim()
-                //sh "echo $INSTANCE_STATE"
-                sh(script: """while [ INSTANCE_STATE = \$(aws ec2 describe-instances --instance-ids "$id" --output text --query Reservations[*].Instances[*].State.Name) ]; do test "$INSTANCE_STATE" = 'pending'; do sleep 1; echo -n 'Instance is not running' ;done;""")
-                //sh "echo $INSTANCE_STATE"
+                sh "aws ec2 wait instance-running --instance-ids $id"
                 }
             }
         }
