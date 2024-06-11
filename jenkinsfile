@@ -37,7 +37,7 @@ pipeline {
                 sh 'envsubst < node-env-template.env > ./nodejs/server/.env'
                 sh 'cat ./nodejs/server/.env'
                 env.NODE_IP = sh(script: 'terraform output -raw node_public_ip', returnStdout: true).trim()
-                sh 'envsubst < node-env-template.env > ./react/client/.env'
+                sh 'envsubst < react-env-template.env > ./react/client/.env'
                 sh 'cat ./react/client/.env'
                 }
                 //sh 'docker build -t postgres-app ./postgresql'
