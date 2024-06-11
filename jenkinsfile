@@ -34,6 +34,7 @@ pipeline {
                 expression{"$SKIP_STAGE" == 'false'}
                 }
             steps {
+                script{
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
                 env.POSGRES_IP = sh(script: 'terraform output postgre_private_ip', returnStdout: true).trim()
                 sh 'envsubst < node-env-template > nodejs/server/db.js'
@@ -42,6 +43,7 @@ pipeline {
                 sh 'envsubst < react-env-template > react/client/src/components/EditTodo.js'
                 sh 'envsubst < react-env-template > react/client/src/components/InputTodo.js'
                 sh 'envsubst < react-env-template > react/client/src/components/ListTodo.js'
+                }
                 //sh 'docker build -t postgres-app ./postgresql'
                 // input steps for envsubst command for nodejs file and react file here
                 //sh 'docker build -t nodejs-app ./nodejs/server'
