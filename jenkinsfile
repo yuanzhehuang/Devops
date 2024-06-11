@@ -30,9 +30,6 @@ pipeline {
             }
         }
         stage('Build App Docker Images') {
-            when {
-                expression{"$SKIP_STAGE" == 'false'}
-                }
             steps {
                 script{
                 sh """docker login -u AWS -p \$(aws ecr get-login-password --region $AWS_REGION) $ECR_REGISTRY"""
@@ -72,7 +69,7 @@ pipeline {
                 sh "echo $id"
                 INSTANCE_STATE = sh(script: "aws ec2 describe-instances --instance-ids $id --output text --query Reservations[*].Instances[*].State.Name",  returnStdout:true).trim()
                 sh "echo $INSTANCE_STATE"
-                sh(script: """while [ "$INSTANCE_STATE" = \$(aws ec2 describe-instances --instance-ids "$id" --output text --query Reservations[*].Instances[*].State.Name) ]; test "$INSTANCE_STATE" = 'pending'; do sleep 1; echo -n '.' ;done;""")
+                sh(script: """while [ INSTANCE_STATE = \$(aws ec2 describe-instances --instance-ids "$id" --output text --query Reservations[*].Instances[*].State.Name) ]; test "$INSTANCE_STATE" = 'pending'; do sleep 1; echo -n '.' ;done;""")
                 //sh "echo $INSTANCE_STATE"
                 }
             }
